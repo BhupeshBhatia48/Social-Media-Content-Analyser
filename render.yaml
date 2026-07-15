@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: social-media-content-analyzer
+    env: python
+    plan: free
+    buildCommand: "apt-get update && apt-get install -y tesseract-ocr && cd frontend && npm install && npm run build && cd .. && cp -r frontend/dist/* app/static/ && pip install -r requirements.txt"
+    startCommand: "uvicorn app.main:app --host 0.0.0.0 --port $PORT"
+    envVars:
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GEMINI_MODEL
+        value: gemini-2.5-flash
+      - key: MAX_UPLOAD_SIZE_MB
+        value: "15"
