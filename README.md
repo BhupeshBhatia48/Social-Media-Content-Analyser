@@ -6,12 +6,10 @@ and returns a structured, actionable analysis for each one — sentiment,
 an engagement score, strengths, weaknesses, and a rewritten, more engaging
 version — streamed to the browser as each post finishes.
 
-**Live app:** _add your deployed URL here_
-**Repo:** _add your GitHub link here_
 
 ---
 
-## Approach (~200 words)
+## Approach
 
 I built this as a single FastAPI service that both serves the API and a built React frontend, rather than splitting frontend/backend into two deployed services — fewer moving parts means fewer things that can break when an evaluator tests it cold. Text extraction uses PyMuPDF first, per page; any page that returns too little text is treated as scanned/image content and is rendered to an image and run through Tesseract OCR instead, so a single PDF can mix directly-extracted and OCR'd pages. Extracted text is split into individual posts on blank lines — a documented, simplifying assumption (see below). Each post is sent to Gemini 2.5 Flash with a prompt requesting JSON only; the response is validated against a Pydantic schema before it ever reaches the frontend, with retries on malformed output or transient failures (e.g. HTTP 503) and a clearly labeled "skipped" result if that also fails, instead of a crash. Very short posts are skipped before calling the LLM at all, to avoid hallucinated scores on near-empty input. Results stream to the browser over Server-Sent Events as each post completes. The frontend is a React + Tailwind app with an animated score indicator, an overall verdict summary, and an expandable word-level diff showing exactly what changed between the original and improved post.
 
@@ -168,8 +166,3 @@ rather than silently dropped:
 - Deduplicate identical uploads by content hash.
 - Token-level streaming of the LLM's own output, rather than per-post
   streaming, for even faster perceived responsiveness.
-
-## Screenshots
-
-_Add 2-3 screenshots here after deploying: the upload screen, the
-extraction-path badges, and a fully analyzed post card._
